@@ -21,6 +21,26 @@ export function dateTimeLocal(value) {
   return new Date(date.getTime() - offset * 60000).toISOString().slice(0, 16);
 }
 
+export function dayLabel(value) {
+  if (!value) return "";
+  return new Intl.DateTimeFormat("en-EG", { day: "2-digit", month: "short" }).format(new Date(value));
+}
+
+export function monthLabel(value) {
+  if (!value) return "";
+  return new Intl.DateTimeFormat("en-EG", { month: "long", year: "numeric" }).format(new Date(value));
+}
+
+export function dateTime(value) {
+  if (!value) return "";
+  return new Intl.DateTimeFormat("en-EG", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
 export function durationFrom(startTime) {
   if (!startTime) return "00:00";
   const elapsed = Math.max(0, Date.now() - new Date(startTime).getTime());

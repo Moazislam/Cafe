@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { supabase } from "../services/supabase";
 
-const TABLES = ["rooms", "reservations", "sessions", "inventory_items", "orders", "order_items"];
+const TABLES = ["rooms", "reservations", "sessions", "inventory_items", "orders", "order_items", "transactions"];
 
 export function useRealtime(onChange) {
   useEffect(() => {

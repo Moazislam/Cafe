@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
+import { BellRing } from "lucide-react";
 import { Navbar } from "./components/Navbar";
 import { Dashboard } from "./pages/Dashboard";
 import { Inventory } from "./pages/Inventory";
 import { Login } from "./pages/Login";
 import { Orders } from "./pages/Orders";
+import { Reports } from "./pages/Reports";
 import { Reservations } from "./pages/Reservations";
 import { Rooms } from "./pages/Rooms";
 import { hasSupabaseConfig, supabase } from "./services/supabase";
 import { useCafeData } from "./hooks/useCafeData";
+import { useOvertimeAlerts } from "./hooks/useOvertimeAlerts";
 
 function SetupRequired() {
   return (
@@ -26,6 +29,8 @@ function SetupRequired() {
 
 function ProtectedLayout({ session }) {
   const cafe = useCafeData();
+  const overtimeSessionIds = useOvertimeAlerts(cafe.activeSessions);
+  const overtimeSessions = cafe.activeSessions.filter((item) => overtimeSessionIds.has(item.id));
 
   if (cafe.loading) {
     return <main className="loading-screen">Loading cafe operations...</main>;
@@ -36,7 +41,16 @@ function ProtectedLayout({ session }) {
       <Navbar user={session.user} />
       <main className="content-shell">
         {cafe.error ? <div className="error-banner">{cafe.error}</div> : null}
-        <Outlet context={cafe} />
+        {overtimeSessions.length ? (
+          <div className="alarm-banner" role="alert">
+            <BellRing size={18} />
+            <span>
+              {overtimeSessions.map((item) => item.rooms?.name || "A room").join(", ")}{" "}
+              {overtimeSessions.length === 1 ? "is" : "are"} past the booked time.
+            </span>
+          </div>
+        ) : null}
+        <Outlet context={{ ...cafe, overtimeSessionIds }} />
       </main>
     </div>
   );
@@ -80,6 +94,7 @@ function AppRoutes() {
         <Route path="/reservations" element={<Reservations />} />
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/orders" element={<Orders />} />
+        <Route path="/reports" element={<Reports />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>
     </Routes>

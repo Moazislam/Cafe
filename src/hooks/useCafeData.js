@@ -3,6 +3,7 @@ import { fetchInventory } from "../services/inventory";
 import { fetchOrders } from "../services/orders";
 import { fetchReservations } from "../services/reservations";
 import { fetchRooms } from "../services/rooms";
+import { fetchDailyRevenue, fetchMonthlyRevenue, fetchTransactions } from "../services/revenue";
 import { fetchSessions } from "../services/sessions";
 import { useRealtime } from "./useRealtime";
 
@@ -12,24 +13,42 @@ export function useCafeData() {
   const [sessions, setSessions] = useState([]);
   const [inventory, setInventory] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [dailyRevenue, setDailyRevenue] = useState([]);
+  const [monthlyRevenue, setMonthlyRevenue] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const refresh = useCallback(async () => {
     try {
       setError("");
-      const [roomData, reservationData, sessionData, inventoryData, orderData] = await Promise.all([
+      const [
+        roomData,
+        reservationData,
+        sessionData,
+        inventoryData,
+        orderData,
+        transactionData,
+        dailyRevenueData,
+        monthlyRevenueData,
+      ] = await Promise.all([
         fetchRooms(),
         fetchReservations(),
         fetchSessions(),
         fetchInventory(),
         fetchOrders(),
+        fetchTransactions(),
+        fetchDailyRevenue(),
+        fetchMonthlyRevenue(),
       ]);
       setRooms(roomData);
       setReservations(reservationData);
       setSessions(sessionData);
       setInventory(inventoryData);
       setOrders(orderData);
+      setTransactions(transactionData);
+      setDailyRevenue(dailyRevenueData);
+      setMonthlyRevenue(monthlyRevenueData);
     } catch (err) {
       setError(err.message || "Could not load cafe data.");
     } finally {
@@ -58,6 +77,18 @@ export function useCafeData() {
     [inventory],
   );
 
+  const todayRevenue = useMemo(() => {
+    const todayKey = new Date().toISOString().slice(0, 10);
+    const row = dailyRevenue.find((entry) => entry.day === todayKey);
+    return Number(row?.total_revenue || 0);
+  }, [dailyRevenue]);
+
+  const monthRevenue = useMemo(() => {
+    const monthKey = `${new Date().toISOString().slice(0, 7)}-01`;
+    const row = monthlyRevenue.find((entry) => entry.month === monthKey);
+    return Number(row?.total_revenue || 0);
+  }, [monthlyRevenue]);
+
   return {
     rooms,
     reservations,
@@ -67,6 +98,11 @@ export function useCafeData() {
     inventory,
     lowStock,
     orders,
+    transactions,
+    dailyRevenue,
+    monthlyRevenue,
+    todayRevenue,
+    monthRevenue,
     loading,
     error,
     refresh,

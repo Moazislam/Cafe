@@ -1,24 +1,36 @@
-import { CalendarPlus, CircleStop, Play } from "lucide-react";
+import { CalendarPlus, CircleStop, Play, BellRing } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { durationFrom, time } from "../utils";
 
-export function RoomCard({ room, activeSessions, reservations, onStart, onEnd, onReserve, onStatusChange }) {
+export function RoomCard({ room, activeSessions, reservations, overtimeSessionIds, onStart, onEnd, onReserve, onStatusChange }) {
+  const now = Date.now();
   const session = activeSessions.find((item) => item.room_id === room.id);
-  const reservation = reservations.find((item) => item.room_id === room.id && item.status === "CONFIRMED");
-  const canStart = room.status === "AVAILABLE";
+  const isOvertime = Boolean(session && overtimeSessionIds?.has(session.id));
+  const roomReservations = reservations.filter((item) => item.room_id === room.id && item.status === "CONFIRMED");
+  const activeReservation = roomReservations.find(
+    (item) => new Date(item.start_time).getTime() <= now && new Date(item.end_time).getTime() > now,
+  );
+  const reservation = activeReservation || roomReservations[0];
+  const canStart = room.status === "AVAILABLE" || Boolean(activeReservation);
 
   return (
-    <article className={`room-card room-${room.status.toLowerCase()}`}>
+    <article className={`room-card room-${room.status.toLowerCase()}${isOvertime ? " room-overtime" : ""}`}>
       <div className="room-card-header">
         <div>
           <p className="room-kicker">{room.console_type || "Gaming station"}</p>
           <h3>{room.name}</h3>
         </div>
-        <StatusBadge status={room.status} />
+        {isOvertime ? (
+          <span className="overtime-badge"><BellRing size={16} /> Time's up</span>
+        ) : (
+          <StatusBadge status={room.status} />
+        )}
       </div>
       <div className="room-details">
         {session ? (
-          <p><span>Active for</span><strong>{durationFrom(session.start_time)}</strong></p>
+          <p className={isOvertime ? "overtime-line" : ""}><span>Active for</span><strong>{durationFrom(session.start_time)}</strong></p>
+        ) : activeReservation ? (
+          <p><span>Checked-in booking</span><strong>{activeReservation.customer_name}</strong></p>
         ) : reservation ? (
           <p><span>Next booking</span><strong>{time(reservation.start_time)}</strong></p>
         ) : (
@@ -31,8 +43,8 @@ export function RoomCard({ room, activeSessions, reservations, onStart, onEnd, o
             <CircleStop size={16} /> End session
           </button>
         ) : (
-          <button className="button primary-button" type="button" disabled={!canStart} onClick={() => onStart(room.id)}>
-            <Play size={16} fill="currentColor" /> Start session
+          <button className="button primary-button" type="button" disabled={!canStart} onClick={() => onStart(room.id, activeReservation?.id)}>
+            <Play size={16} fill="currentColor" /> {activeReservation ? "Check in" : "Start session"}
           </button>
         )}
         <button className="icon-button bordered" type="button" title="Create reservation" aria-label={`Create reservation for ${room.name}`} onClick={() => onReserve(room.id)}>

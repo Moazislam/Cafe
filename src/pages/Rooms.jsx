@@ -7,7 +7,7 @@ export function Rooms() {
   const cafe = useOutletContext();
   const navigate = useNavigate();
 
-  async function begin(roomId) { try { await startSession({ roomId, durationMinutes: 120 }); await cafe.refresh(); } catch (error) { window.alert(error.message || "Could not start the session."); } }
+  async function begin(roomId, reservationId) { try { await startSession({ roomId, durationMinutes: 120, reservationId }); await cafe.refresh(); } catch (error) { window.alert(error.message || "Could not start the session."); } }
   async function finish(sessionId) { try { await endSession(sessionId); await cafe.refresh(); } catch (error) { window.alert(error.message || "Could not end the session."); } }
   async function changeStatus(roomId, status) { try { await updateRoomStatus(roomId, status); await cafe.refresh(); } catch (error) { window.alert(error.message || "Could not update the room."); } }
 

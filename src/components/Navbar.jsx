@@ -1,4 +1,4 @@
-import { Boxes, CalendarDays, LayoutDashboard, LogOut, Package, ReceiptText } from "lucide-react";
+import { Boxes, CalendarDays, Coins, LayoutDashboard, LogOut, Package, ReceiptText } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabase";
 
@@ -8,6 +8,7 @@ const links = [
   { to: "/reservations", label: "Reservations", icon: CalendarDays },
   { to: "/inventory", label: "Inventory", icon: Package },
   { to: "/orders", label: "Orders", icon: ReceiptText },
+  { to: "/reports", label: "Reports", icon: Coins },
 ];
 
 export function Navbar({ user }) {
