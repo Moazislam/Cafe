@@ -19,21 +19,22 @@ export function OrderPanel({ inventory, activeSessions, onComplete }) {
 
   async function submit(event) {
     event.preventDefault();
-    if (!sessionId || !cart.length) {
-      setMessage("Choose an active room and add at least one item.");
+    if (!cart.length) {
+      setMessage("Add at least one item to the order.");
       return;
     }
 
-    const session = activeSessions.find((item) => item.id === sessionId);
+    const session = sessionId ? activeSessions.find((item) => item.id === sessionId) : null;
     setSaving(true);
     setMessage("");
     try {
       await createOrder({
-        roomId: session.room_id,
-        sessionId,
+        roomId: session ? session.room_id : null,
+        sessionId: session ? session.id : null,
         items: cart.map((item) => ({ inventoryItemId: item.id, quantity: quantities[item.id] })),
       });
       setQuantities({});
+      setSessionId("");
       setMessage("Order added and inventory updated.");
       await onComplete();
     } catch (error) {
@@ -46,9 +47,9 @@ export function OrderPanel({ inventory, activeSessions, onComplete }) {
   return (
     <form className="order-panel" onSubmit={submit}>
       <div className="field-group">
-        <label htmlFor="order-session">Active room</label>
+        <label htmlFor="order-session">Assign to room (optional)</label>
         <select id="order-session" value={sessionId} onChange={(event) => setSessionId(event.target.value)}>
-          <option value="">Select a room</option>
+          <option value="">Counter sale (no room)</option>
           {activeSessions.map((session) => <option key={session.id} value={session.id}>{session.rooms?.name || "Room"}</option>)}
         </select>
       </div>
@@ -65,7 +66,7 @@ export function OrderPanel({ inventory, activeSessions, onComplete }) {
         ))}
       </div>
       <div className="order-footer"><span>Total</span><strong>{currency(total)}</strong></div>
-      <button className="button primary-button full-button" type="submit" disabled={saving || !activeSessions.length}><ShoppingBag size={17} />{saving ? "Adding order..." : "Add order"}</button>
+      <button className="button primary-button full-button" type="submit" disabled={saving || !cart.length}><ShoppingBag size={17} />{saving ? "Adding order..." : "Add order"}</button>
       {message ? <p className="form-message">{message}</p> : null}
     </form>
   );
