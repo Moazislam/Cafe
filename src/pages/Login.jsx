@@ -1,6 +1,6 @@
 import { LogIn } from "lucide-react";
 import { useState } from "react";
-import { supabase } from "../services/supabase";
+import { getSupabase } from "../services/supabase";
 
 export function Login() {
   const [username, setUsername] = useState("");
@@ -13,19 +13,25 @@ export function Login() {
     setSending(true);
     setError("");
 
-    const { data: email, error: lookupError } = await supabase.rpc("login_email_for_username", {
-      p_username: username,
-    });
+    try {
+      const normalizedUsername = username.trim();
+      const client = getSupabase();
+      const { data: email, error: lookupError } = await client.rpc("login_email_for_username", {
+        p_username: normalizedUsername,
+      });
 
-    if (lookupError || !email) {
-      setError("Invalid username or password.");
+      if (lookupError || !email) {
+        setError("Invalid username or password.");
+        return;
+      }
+
+      const { error: signInError } = await client.auth.signInWithPassword({ email, password });
+      if (signInError) setError("Invalid username or password.");
+    } catch {
+      setError("Unable to sign in. Please try again.");
+    } finally {
       setSending(false);
-      return;
     }
-
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-    if (signInError) setError(signInError.message);
-    setSending(false);
   }
 
   return (

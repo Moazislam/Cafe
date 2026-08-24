@@ -4,7 +4,7 @@ export async function fetchTransactions(limit = 100) {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("transactions")
-    .select("*, rooms(name)")
+    .select("*, rooms(name), profiles(username, role), sessions(started_by, profiles(username))")
     .order("created_at", { ascending: false })
     .limit(limit);
 

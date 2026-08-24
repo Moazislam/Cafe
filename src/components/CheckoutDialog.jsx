@@ -1,9 +1,17 @@
 import { Receipt, ShoppingBag, Timer, X } from "lucide-react";
 import { currency, durationFrom } from "../utils";
 
-export function CheckoutDialog({ room, session, orders, onConfirm, onCancel, confirming }) {
-  const elapsedHours = Math.max(0, (Date.now() - new Date(session.start_time).getTime()) / 3600000);
-  const roomCharge = (room?.hourly_rate || 0) * elapsedHours;
+function getRoomModeRate(room, roomMode = "SINGLE") {
+  const baseRate = Number(room?.hourly_rate || 0);
+  const surcharge = roomMode === "MULTIPLAYER" ? (room?.id === 2 ? 15 : 10) : 0;
+  return baseRate + surcharge;
+}
+
+export function CheckoutDialog({ room, roomMode = "SINGLE", session, orders, onConfirm, onCancel, confirming }) {
+  const elapsedMinutes = Math.max(0, (Date.now() - new Date(session.start_time).getTime()) / 60000);
+  const billableMinutes = Math.max(60, Math.round(elapsedMinutes / 15) * 15);
+  const effectiveRate = getRoomModeRate(room, roomMode);
+  const roomCharge = effectiveRate * (billableMinutes / 60);
   const orderLines = orders.flatMap((order) => (order.order_items || []).map((item) => ({ ...item, orderId: order.id })));
   const ordersTotal = orders.reduce((sum, order) => sum + Number(order.total || 0), 0);
   const grandTotal = roomCharge + ordersTotal;
@@ -23,7 +31,7 @@ export function CheckoutDialog({ room, session, orders, onConfirm, onCancel, con
 
         <div className="checkout-lines">
           <div className="checkout-line">
-            <span><Timer size={15} /> Room time ({durationFrom(session.start_time)} @ {room?.hourly_rate || 0} EGP/hr)</span>
+            <span><Timer size={15} /> Room time ({durationFrom(session.start_time)} @ {effectiveRate} EGP/hr)</span>
             <strong>{currency(roomCharge)}</strong>
           </div>
           {orderLines.length ? orderLines.map((item) => (
