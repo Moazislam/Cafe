@@ -5,6 +5,7 @@ create extension if not exists pgcrypto;
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text,
+  username text,
   role text not null default 'STAFF' check (role in ('ADMIN', 'STAFF')),
   created_at timestamptz not null default now()
 );
@@ -103,8 +104,12 @@ language plpgsql
 security definer set search_path = public
 as $$
 begin
-  insert into public.profiles (id, full_name)
-  values (new.id, coalesce(new.raw_user_meta_data ->> 'full_name', split_part(new.email, '@', 1)))
+  insert into public.profiles (id, full_name, username)
+  values (
+    new.id,
+    coalesce(new.raw_user_meta_data ->> 'full_name', split_part(new.email, '@', 1)),
+    lower(trim(coalesce(new.raw_user_meta_data ->> 'username', split_part(new.email, '@', 1))))
+  )
   on conflict (id) do nothing;
   return new;
 end;
@@ -114,8 +119,11 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created after insert on auth.users
 for each row execute procedure public.create_profile_for_user();
 
-insert into public.profiles (id, full_name)
-select id, coalesce(raw_user_meta_data ->> 'full_name', split_part(email, '@', 1))
+insert into public.profiles (id, full_name, username)
+select
+  id,
+  coalesce(raw_user_meta_data ->> 'full_name', split_part(email, '@', 1)),
+  lower(trim(coalesce(raw_user_meta_data ->> 'username', split_part(email, '@', 1))))
 from auth.users
 on conflict (id) do nothing;
 
@@ -310,6 +318,18 @@ alter table public.sessions enable row level security;
 alter table public.inventory_items enable row level security;
 alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
+
+drop policy if exists "profiles select own" on public.profiles;
+drop policy if exists "operators read rooms" on public.rooms;
+drop policy if exists "operators update rooms" on public.rooms;
+drop policy if exists "operators read reservations" on public.reservations;
+drop policy if exists "operators create reservations" on public.reservations;
+drop policy if exists "operators read sessions" on public.sessions;
+drop policy if exists "operators read inventory" on public.inventory_items;
+drop policy if exists "operators create inventory" on public.inventory_items;
+drop policy if exists "operators update inventory" on public.inventory_items;
+drop policy if exists "operators read orders" on public.orders;
+drop policy if exists "operators read order items" on public.order_items;
 
 create policy "profiles select own" on public.profiles for select to authenticated using (id = auth.uid() or public.is_operator());
 create policy "operators read rooms" on public.rooms for select to authenticated using (public.is_operator());
