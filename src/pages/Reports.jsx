@@ -103,17 +103,18 @@ export function Reports() {
         </div>
         <div className="table-wrap">
           <table>
-            <thead><tr><th>When</th><th>Type</th><th>Room</th><th>Amount</th></tr></thead>
+            <thead><tr><th>When</th><th>Type</th><th>Room</th>{cafe.role === "ADMIN" ? <th>User</th> : null}<th>Amount</th></tr></thead>
             <tbody>
               {cafe.transactions.length ? cafe.transactions.map((entry) => (
                 <tr key={entry.id}>
                   <td>{dateTime(entry.created_at)}</td>
                   <td>{KIND_LABELS[entry.kind] || entry.kind}</td>
                   <td>{entry.rooms?.name || "—"}</td>
+                  {cafe.role === "ADMIN" ? <td>{entry.kind === "SESSION" ? entry.sessions?.profiles?.username : entry.profiles?.username || "Unknown"}</td> : null}
                   <td><strong>{currency(entry.amount)}</strong></td>
                 </tr>
               )) : (
-                <tr><td colSpan={4}><div className="empty-state">No transactions logged yet.</div></td></tr>
+                <tr><td colSpan={cafe.role === "ADMIN" ? 5 : 4}><div className="empty-state">No transactions logged yet.</div></td></tr>
               )}
             </tbody>
           </table>

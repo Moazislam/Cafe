@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Outlet, Route, Routes, useLocation, useOutletContext } from "react-router-dom";
 import { BellRing } from "lucide-react";
 import { Navbar } from "./components/Navbar";
 import { Dashboard } from "./pages/Dashboard";
@@ -9,6 +9,7 @@ import { Orders } from "./pages/Orders";
 import { Reports } from "./pages/Reports";
 import { Reservations } from "./pages/Reservations";
 import { Rooms } from "./pages/Rooms";
+import { VIP } from "./pages/VIP";
 import { hasSupabaseConfig, supabase } from "./services/supabase";
 import { useCafeData } from "./hooks/useCafeData";
 import { useOvertimeAlerts } from "./hooks/useOvertimeAlerts";
@@ -27,10 +28,42 @@ function SetupRequired() {
   );
 }
 
+function AdminOnly({ children }) {
+  const { role } = useOutletContext();
+  if (!role) return <main className="loading-screen">Checking admin access...</main>;
+  return String(role).toUpperCase() === "ADMIN" ? children : <Navigate to="/dashboard" replace />;
+}
+
 function ProtectedLayout({ session }) {
   const cafe = useCafeData();
+  const [profile, setProfile] = useState(null);
   const overtimeSessionIds = useOvertimeAlerts(cafe.activeSessions);
   const overtimeSessions = cafe.activeSessions.filter((item) => overtimeSessionIds.has(item.id));
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadRole() {
+      const { data: rpcRole } = await supabase.rpc("current_user_role");
+      if (rpcRole) {
+        if (active) setProfile({ role: rpcRole });
+        return;
+      }
+
+      const { data: profileRow } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", session.user.id)
+        .maybeSingle();
+      const role = profileRow?.role || session.user.user_metadata?.role || "STAFF";
+      if (active) setProfile({ role });
+    }
+
+    loadRole().catch(() => {
+      if (active) setProfile({ role: session.user.user_metadata?.role || "STAFF" });
+    });
+    return () => { active = false; };
+  }, [session.user.id]);
 
   if (cafe.loading) {
     return <main className="loading-screen">Loading cafe operations...</main>;
@@ -38,7 +71,7 @@ function ProtectedLayout({ session }) {
 
   return (
     <div className="app-shell">
-      <Navbar user={session.user} />
+      <Navbar user={session.user} role={profile?.role} />
       <main className="content-shell">
         {cafe.error ? <div className="error-banner">{cafe.error}</div> : null}
         {overtimeSessions.length ? (
@@ -50,7 +83,7 @@ function ProtectedLayout({ session }) {
             </span>
           </div>
         ) : null}
-        <Outlet context={{ ...cafe, overtimeSessionIds }} />
+        <Outlet context={{ ...cafe, overtimeSessionIds, role: profile?.role }} />
       </main>
     </div>
   );
@@ -92,8 +125,9 @@ function AppRoutes() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/rooms" element={<Rooms />} />
         <Route path="/reservations" element={<Reservations />} />
-        <Route path="/inventory" element={<Inventory />} />
+        <Route path="/inventory" element={<AdminOnly><Inventory /></AdminOnly>} />
         <Route path="/orders" element={<Orders />} />
+        <Route path="/vip" element={<AdminOnly><VIP /></AdminOnly>} />
         <Route path="/reports" element={<Reports />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>

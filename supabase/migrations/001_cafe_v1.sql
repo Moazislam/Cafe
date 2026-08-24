@@ -334,11 +334,11 @@ grant execute on function public.cancel_reservation(uuid) to authenticated;
 grant execute on function public.create_order(uuid, uuid, jsonb) to authenticated;
 
 insert into public.rooms (name, console_type, hourly_rate) values
-  ('Room 1', 'PlayStation 5', 90),
-  ('Room 2', 'PlayStation 5', 90),
-  ('Room 3', 'PlayStation 5', 90),
-  ('Room 4', 'PC Station', 80),
-  ('VIP Room', 'PlayStation 5', 120)
+  ('Room 1', 'PlayStation 4', 35),
+  ('Room 2', 'PlayStation 5', 45),
+  ('Room 3', 'PlayStation 4', 35),
+  ('Room 4', 'PlayStation 4', 35),
+  ('Room 5', 'PlayStation 4', 35)
 on conflict (name) do nothing;
 
 insert into public.inventory_items (name, category, quantity, price, low_stock_threshold) values

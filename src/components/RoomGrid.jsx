@@ -5,7 +5,15 @@ export function RoomGrid(props) {
 
   return (
     <div className="room-grid">
-      {props.rooms.map((room) => <RoomCard key={room.id} room={room} {...props} />)}
+      {props.rooms.map((room) => (
+        <RoomCard
+          key={room.id}
+          room={room}
+          roomMode={props.roomModes?.[room.id] ?? "SINGLE"}
+          onModeChange={props.onModeChange}
+          {...props}
+        />
+      ))}
     </div>
   );
 }

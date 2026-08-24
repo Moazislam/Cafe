@@ -1,4 +1,4 @@
-import { Boxes, CalendarDays, Coins, LayoutDashboard, LogOut, Package, ReceiptText } from "lucide-react";
+import { Boxes, CalendarDays, Coins, Crown, LayoutDashboard, LogOut, Package, ReceiptText } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabase";
 
@@ -6,14 +6,14 @@ const links = [
   { to: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { to: "/rooms", label: "Rooms", icon: Boxes },
   { to: "/reservations", label: "Reservations", icon: CalendarDays },
-  { to: "/inventory", label: "Inventory", icon: Package },
   { to: "/orders", label: "Orders", icon: ReceiptText },
   { to: "/reports", label: "Reports", icon: Coins },
 ];
 
-export function Navbar({ user }) {
+export function Navbar({ user, role }) {
   const navigate = useNavigate();
   const username = user.user_metadata?.username || user.email?.split("@")[0] || "Staff";
+  const isAdmin = String(role || "").toUpperCase() === "ADMIN";
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -27,7 +27,7 @@ export function Navbar({ user }) {
         <span>Cafe Control</span>
       </NavLink>
       <nav className="primary-nav" aria-label="Main navigation">
-        {links.map(({ to, label, icon: Icon }) => (
+        {[...links, ...(isAdmin ? [{ to: "/inventory", label: "Inventory", icon: Package }, { to: "/vip", label: "VIP", icon: Crown }] : [])].map(({ to, label, icon: Icon }) => (
           <NavLink key={to} to={to} className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
             <Icon size={17} strokeWidth={2} />
             <span>{label}</span>
