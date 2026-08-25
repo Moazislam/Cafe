@@ -15,7 +15,7 @@ export async function startSession({ roomId, durationMinutes, reservationId = nu
   const supabase = getSupabase();
   const { data, error } = await supabase.rpc("start_session", {
     p_room_id: roomId,
-    p_duration_minutes: Number(durationMinutes),
+    p_duration_minutes: durationMinutes == null ? null : Number(durationMinutes),
     p_reservation_id: reservationId,
   });
 
