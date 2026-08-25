@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { CheckoutDialog } from "../components/CheckoutDialog";
 import { RoomGrid } from "../components/RoomGrid";
+import { SessionModeDialog } from "../components/SessionModeDialog";
 import { useCheckout } from "../hooks/useCheckout";
 import { startSession } from "../services/sessions";
 import { updateRoomStatus } from "../services/rooms";
@@ -11,14 +12,21 @@ export function Rooms() {
   const navigate = useNavigate();
   const checkout = useCheckout(cafe);
   const [roomModes, setRoomModes] = useState({});
+  const [startRequest, setStartRequest] = useState(null);
 
   function setMode(roomId, mode) {
     setRoomModes((current) => ({ ...current, [roomId]: mode || "SINGLE" }));
   }
 
-  async function begin(roomId, reservationId, roomMode = "SINGLE") {
+  function requestStart(roomId, reservationId, roomMode = "SINGLE") {
+    setStartRequest({ roomId, reservationId, roomMode, sessionMode: "OPEN" });
+  }
+
+  async function begin() {
+    const { roomId, reservationId, roomMode, sessionMode } = startRequest;
     setMode(roomId, roomMode);
-    try { await startSession({ roomId, durationMinutes: 120, reservationId }); await cafe.refresh(); } catch (error) { window.alert(error.message || "Could not start the session."); }
+    const durationMinutes = sessionMode === "1_HOUR" ? 60 : sessionMode === "2_HOURS" ? 120 : null;
+    try { await startSession({ roomId, durationMinutes, reservationId }); setStartRequest(null); await cafe.refresh(); } catch (error) { window.alert(error.message || "Could not start the session."); }
   }
   async function changeStatus(roomId, status) { try { await updateRoomStatus(roomId, status); await cafe.refresh(); } catch (error) { window.alert(error.message || "Could not update the room."); } }
 
@@ -29,11 +37,12 @@ export function Rooms() {
         {...cafe}
         roomModes={roomModes}
         onModeChange={setMode}
-        onStart={begin}
+        onStart={requestStart}
         onEnd={checkout.openCheckout}
         onReserve={(roomId) => navigate(`/reservations?room=${roomId}`)}
         onStatusChange={changeStatus}
       />
+      {startRequest ? <SessionModeDialog room={cafe.rooms.find((room) => room.id === startRequest.roomId)} mode={startRequest.sessionMode} onChange={(sessionMode) => setStartRequest((current) => ({ ...current, sessionMode }))} onConfirm={begin} onCancel={() => setStartRequest(null)} /> : null}
       {checkout.checkoutSession ? (
         <CheckoutDialog
           room={checkout.checkoutRoom}

@@ -1,6 +1,6 @@
 import { CalendarRange, Coins, Receipt, Timer } from "lucide-react";
 import { useOutletContext } from "react-router-dom";
-import { currency, dateTime, dayLabel, monthLabel } from "../utils";
+import { businessDayKey, currency, dateTime, dayLabel, monthLabel } from "../utils";
 
 const KIND_LABELS = { SESSION: "Room time", ORDER: "Counter order" };
 
@@ -17,6 +17,7 @@ function roomTimeLabel(row) {
 
 export function Reports() {
   const cafe = useOutletContext();
+  const isAdmin = String(cafe.role || "").trim().toUpperCase() === "ADMIN";
 
   return (
     <div className="page-stack">
@@ -34,19 +35,21 @@ export function Reports() {
           <strong>{currency(cafe.todayRevenue)}</strong>
           <span>Today's revenue</span>
         </article>
-        <article className="stat-card stat-amber">
-          <CalendarRange size={20} />
-          <strong>{currency(cafe.monthRevenue)}</strong>
-          <span>This month's revenue</span>
-        </article>
+        {isAdmin ? (
+          <article className="stat-card stat-amber">
+            <CalendarRange size={20} />
+            <strong>{currency(cafe.monthRevenue)}</strong>
+            <span>This month's revenue</span>
+          </article>
+        ) : null}
         <article className="stat-card stat-rose">
           <Timer size={20} />
-          <strong>{currency(cafe.dailyRevenue.find((row) => row.day === new Date().toISOString().slice(0, 10))?.session_revenue || 0)}</strong>
+          <strong>{currency(cafe.dailyRevenue.find((row) => row.day === businessDayKey())?.session_revenue || 0)}</strong>
           <span>Today's room-time charges</span>
         </article>
         <article className="stat-card stat-violet">
           <Receipt size={20} />
-          <strong>{currency(cafe.dailyRevenue.find((row) => row.day === new Date().toISOString().slice(0, 10))?.order_revenue || 0)}</strong>
+          <strong>{currency(cafe.dailyRevenue.find((row) => row.day === businessDayKey())?.order_revenue || 0)}</strong>
           <span>Today's counter orders</span>
         </article>
       </section>
@@ -78,31 +81,33 @@ export function Reports() {
           </div>
         </div>
 
-        <div className="section-surface">
-          <div className="section-heading">
-            <div>
-              <h2>Monthly revenue</h2>
-              <p>Last {cafe.monthlyRevenue.length} months with activity.</p>
+        {isAdmin ? (
+          <div className="section-surface">
+            <div className="section-heading">
+              <div>
+                <h2>Monthly revenue</h2>
+                <p>Last {cafe.monthlyRevenue.length} months with activity.</p>
+              </div>
+            </div>
+            <div className="table-wrap">
+              <table>
+                <thead><tr><th>Month</th><th>Room Revenue</th><th>Orders</th><th>Total</th></tr></thead>
+                <tbody>
+                  {cafe.monthlyRevenue.length ? cafe.monthlyRevenue.map((row) => (
+                    <tr key={row.month}>
+                      <td>{monthLabel(row.month)}</td>
+                      <td>{currency(row.session_revenue)}</td>
+                      <td>{currency(row.order_revenue)}</td>
+                      <td><strong>{currency(row.total_revenue)}</strong></td>
+                    </tr>
+                  )) : (
+                    <tr><td colSpan={4}><div className="empty-state">No revenue recorded yet.</div></td></tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
-          <div className="table-wrap">
-            <table>
-              <thead><tr><th>Month</th><th>Room Revenue</th><th>Orders</th><th>Total</th></tr></thead>
-              <tbody>
-                {cafe.monthlyRevenue.length ? cafe.monthlyRevenue.map((row) => (
-                  <tr key={row.month}>
-                    <td>{monthLabel(row.month)}</td>
-                    <td>{currency(row.session_revenue)}</td>
-                    <td>{currency(row.order_revenue)}</td>
-                    <td><strong>{currency(row.total_revenue)}</strong></td>
-                  </tr>
-                )) : (
-                  <tr><td colSpan={4}><div className="empty-state">No revenue recorded yet.</div></td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        ) : null}
       </section>
 
       <section className="section-surface">
@@ -114,18 +119,18 @@ export function Reports() {
         </div>
         <div className="table-wrap">
           <table>
-            <thead><tr><th>When</th><th>Type</th><th>Room</th>{cafe.role === "ADMIN" ? <th>User</th> : null}<th>Amount</th></tr></thead>
+            <thead><tr><th>When</th><th>Type</th><th>Room</th>{isAdmin ? <th>User</th> : null}<th>Amount</th></tr></thead>
             <tbody>
               {cafe.transactions.length ? cafe.transactions.map((entry) => (
                 <tr key={entry.id}>
                   <td>{dateTime(entry.created_at)}</td>
                   <td>{KIND_LABELS[entry.kind] || entry.kind}</td>
                   <td>{entry.rooms?.name || "—"}</td>
-                  {cafe.role === "ADMIN" ? <td>{entry.kind === "SESSION" ? entry.sessions?.profiles?.username : entry.profiles?.username || "Unknown"}</td> : null}
+                  {isAdmin ? <td>{entry.kind === "SESSION" ? entry.sessions?.profiles?.username : entry.profiles?.username || "Unknown"}</td> : null}
                   <td><strong>{currency(entry.amount)}</strong></td>
                 </tr>
               )) : (
-                <tr><td colSpan={cafe.role === "ADMIN" ? 5 : 4}><div className="empty-state">No transactions logged yet.</div></td></tr>
+                <tr><td colSpan={isAdmin ? 5 : 4}><div className="empty-state">No transactions logged yet.</div></td></tr>
               )}
             </tbody>
           </table>

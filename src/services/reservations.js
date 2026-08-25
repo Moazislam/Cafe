@@ -1,5 +1,9 @@
 import { getSupabase } from "./supabase";
 
+function toUtcISOString(value) {
+  return new Date(value).toISOString();
+}
+
 export async function fetchReservations() {
   const supabase = getSupabase();
   const { data, error } = await supabase
@@ -19,8 +23,8 @@ export async function createReservation(input) {
       room_id: input.roomId,
       customer_name: input.customerName,
       customer_phone: input.customerPhone,
-      start_time: input.startTime,
-      end_time: input.endTime,
+      start_time: toUtcISOString(input.startTime),
+      end_time: toUtcISOString(input.endTime),
       status: "CONFIRMED",
     })
     .select()
