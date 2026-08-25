@@ -31,3 +31,10 @@ export async function upsertInventoryItem(item) {
   if (error) throw error;
   return data;
 }
+
+export async function archiveInventoryItem(itemId) {
+  const supabase = getSupabase();
+  const { data, error } = await supabase.rpc("archive_inventory_item", { p_item_id: itemId });
+  if (error) throw error;
+  return data;
+}

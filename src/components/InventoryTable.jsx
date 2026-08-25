@@ -1,7 +1,7 @@
-import { AlertTriangle, Pencil } from "lucide-react";
+import { AlertTriangle, Pencil, Trash2 } from "lucide-react";
 import { currency } from "../utils";
 
-export function InventoryTable({ items, onEdit }) {
+export function InventoryTable({ items, onEdit, onDelete }) {
   if (!items.length) return <div className="empty-state">No inventory items yet.</div>;
 
   return (
@@ -17,7 +17,7 @@ export function InventoryTable({ items, onEdit }) {
                 <td>{item.category || "Other"}</td>
                 <td className={low ? "low-stock" : ""}>{low ? <AlertTriangle size={15} /> : null}{item.quantity}</td>
                 <td>{currency(item.price)}</td>
-                <td><button className="icon-button bordered" type="button" title={`Edit ${item.name}`} aria-label={`Edit ${item.name}`} onClick={() => onEdit(item)}><Pencil size={16} /></button></td>
+                <td><div className="inventory-actions"><button className="icon-button bordered" type="button" title={`Edit ${item.name}`} aria-label={`Edit ${item.name}`} onClick={() => onEdit(item)}><Pencil size={16} /></button>{item.quantity === 0 ? <button className="icon-button bordered inventory-delete-button" type="button" title={`Delete ${item.name}`} aria-label={`Delete ${item.name}`} onClick={() => onDelete(item)}><Trash2 size={16} /></button> : null}</div></td>
               </tr>
             );
           })}

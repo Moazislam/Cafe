@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap");
 
 :root { font-family: Manrope, Arial, sans-serif; color: #1d2630; background: #f4f6f5; font-synthesis: none; }
+.inventory-actions { display: inline-flex; gap: 6px; }.inventory-delete-button { color: #a15f63; }.inventory-delete-button:hover { background: #fff5f5; color: #8c3f45; }
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; background: #f4f6f5; }
 button, input, select { font: inherit; }
