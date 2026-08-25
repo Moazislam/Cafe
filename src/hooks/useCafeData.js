@@ -5,6 +5,7 @@ import { fetchReservations } from "../services/reservations";
 import { fetchRooms } from "../services/rooms";
 import { fetchDailyRevenue, fetchMonthlyRevenue, fetchTransactions } from "../services/revenue";
 import { fetchSessions } from "../services/sessions";
+import { businessDayKey } from "../utils";
 import { useRealtime } from "./useRealtime";
 
 export function useCafeData() {
@@ -78,7 +79,7 @@ export function useCafeData() {
   );
 
   const todayRevenue = useMemo(() => {
-    const todayKey = new Date().toISOString().slice(0, 10);
+    const todayKey = businessDayKey();
     const row = dailyRevenue.find((entry) => entry.day === todayKey);
     return Number(row?.total_revenue || 0);
   }, [dailyRevenue]);

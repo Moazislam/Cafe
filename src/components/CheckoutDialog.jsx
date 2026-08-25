@@ -1,5 +1,5 @@
 import { Receipt, ShoppingBag, Timer, X } from "lucide-react";
-import { currency, durationFrom } from "../utils";
+import { ceilToFive, currency, durationFrom } from "../utils";
 
 function getRoomModeRate(room, roomMode = "SINGLE") {
   const baseRate = Number(room?.hourly_rate || 0);
@@ -11,7 +11,7 @@ export function CheckoutDialog({ room, roomMode = "SINGLE", session, orders, onC
   const elapsedMinutes = Math.max(0, (Date.now() - new Date(session.start_time).getTime()) / 60000);
   const billableMinutes = Math.max(60, Math.round(elapsedMinutes / 15) * 15);
   const effectiveRate = getRoomModeRate(room, roomMode);
-  const roomCharge = effectiveRate * (billableMinutes / 60);
+  const roomCharge = ceilToFive(effectiveRate * (billableMinutes / 60));
   const orderLines = orders.flatMap((order) => (order.order_items || []).map((item) => ({ ...item, orderId: order.id })));
   const ordersTotal = orders.reduce((sum, order) => sum + Number(order.total || 0), 0);
   const grandTotal = roomCharge + ordersTotal;

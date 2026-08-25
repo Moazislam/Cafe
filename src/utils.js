@@ -6,6 +6,14 @@ export function currency(value) {
   }).format(Number(value || 0));
 }
 
+export function ceilToFive(value) {
+  return Math.ceil(Number(value || 0) / 5) * 5;
+}
+
+export function businessDayKey(date = new Date()) {
+  return new Date(date.getTime() - 5 * 60 * 60 * 1000).toISOString().slice(0, 10);
+}
+
 export function time(value) {
   if (!value) return "";
   return new Intl.DateTimeFormat("en-EG", {
