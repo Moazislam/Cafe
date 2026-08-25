@@ -37,6 +37,13 @@ export async function setVipPurchaseItemPaid(id, paid) {
   return data;
 }
 
+export async function deleteVipCustomer(customerName) {
+  const supabase = getSupabase();
+  const { data, error } = await supabase.rpc("delete_vip_customer", { p_customer_name: customerName });
+  if (error) throw error;
+  return data;
+}
+
 export async function adjustVipInventory(itemId, delta) {
   const supabase = getSupabase();
   const { data, error } = await supabase.rpc("adjust_inventory_stock", {

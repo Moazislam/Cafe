@@ -34,6 +34,12 @@ function AdminOnly({ children }) {
   return String(role).toUpperCase() === "ADMIN" ? children : <Navigate to="/dashboard" replace />;
 }
 
+function StaffOrAdmin({ children }) {
+  const { role } = useOutletContext();
+  if (!role) return <main className="loading-screen">Checking staff access...</main>;
+  return ["ADMIN", "STAFF"].includes(String(role).toUpperCase()) ? children : <Navigate to="/dashboard" replace />;
+}
+
 function ProtectedLayout({ session }) {
   const cafe = useCafeData();
   const [profile, setProfile] = useState(null);
@@ -127,7 +133,7 @@ function AppRoutes() {
         <Route path="/reservations" element={<Reservations />} />
         <Route path="/inventory" element={<AdminOnly><Inventory /></AdminOnly>} />
         <Route path="/orders" element={<Orders />} />
-        <Route path="/vip" element={<AdminOnly><VIP /></AdminOnly>} />
+        <Route path="/vip" element={<StaffOrAdmin><VIP /></StaffOrAdmin>} />
         <Route path="/reports" element={<Reports />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>

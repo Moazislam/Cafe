@@ -4,6 +4,17 @@ import { currency, dateTime, dayLabel, monthLabel } from "../utils";
 
 const KIND_LABELS = { SESSION: "Room time", ORDER: "Counter order" };
 
+function durationLabel(minutes) {
+  const totalMinutes = Math.max(0, Math.round(Number(minutes || 0)));
+  const hours = Math.floor(totalMinutes / 60);
+  const rest = totalMinutes % 60;
+  return `${String(hours).padStart(2, "0")}:${String(rest).padStart(2, "0")}`;
+}
+
+function roomTimeLabel(row) {
+  return `${durationLabel(row.billed_session_minutes)} (${durationLabel(row.actual_session_minutes)} actual)`;
+}
+
 export function Reports() {
   const cafe = useOutletContext();
 
@@ -50,7 +61,7 @@ export function Reports() {
           </div>
           <div className="table-wrap">
             <table>
-              <thead><tr><th>Day</th><th>Room time</th><th>Orders</th><th>Total</th></tr></thead>
+              <thead><tr><th>Day</th><th>Room Revenue</th><th>Orders</th><th>Total</th></tr></thead>
               <tbody>
                 {cafe.dailyRevenue.length ? cafe.dailyRevenue.map((row) => (
                   <tr key={row.day}>
@@ -76,7 +87,7 @@ export function Reports() {
           </div>
           <div className="table-wrap">
             <table>
-              <thead><tr><th>Month</th><th>Room time</th><th>Orders</th><th>Total</th></tr></thead>
+              <thead><tr><th>Month</th><th>Room Revenue</th><th>Orders</th><th>Total</th></tr></thead>
               <tbody>
                 {cafe.monthlyRevenue.length ? cafe.monthlyRevenue.map((row) => (
                   <tr key={row.month}>
