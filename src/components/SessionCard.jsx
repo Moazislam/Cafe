@@ -1,7 +1,7 @@
-import { BellRing, CircleStop, Timer } from "lucide-react";
+import { BellRing, CircleStop, Timer, XCircle } from "lucide-react";
 import { durationFrom, time } from "../utils";
 
-export function SessionCard({ session, overtime, onEnd }) {
+export function SessionCard({ session, overtime, onEnd, onCancel }) {
   return (
     <article className={`session-card${overtime ? " session-overtime" : ""}`}>
       <div>
@@ -13,6 +13,9 @@ export function SessionCard({ session, overtime, onEnd }) {
         {overtime ? <BellRing size={21} /> : <Timer size={21} />}
         <button className="icon-button bordered" type="button" title="End session" aria-label={`End ${session.rooms?.name || "room"} session`} onClick={() => onEnd(session.id)}>
           <CircleStop size={18} />
+        </button>
+        <button className="icon-button bordered" type="button" title="Cancel session" aria-label={`Cancel ${session.rooms?.name || "room"} session`} onClick={() => onCancel(session.id)}>
+          <XCircle size={18} />
         </button>
       </div>
     </article>

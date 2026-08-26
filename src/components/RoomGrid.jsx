@@ -11,6 +11,7 @@ export function RoomGrid(props) {
           room={room}
           roomMode={props.roomModes?.[room.id] ?? "SINGLE"}
           onModeChange={props.onModeChange}
+          onCancel={props.onCancel}
           {...props}
         />
       ))}

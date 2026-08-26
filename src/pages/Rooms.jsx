@@ -4,7 +4,7 @@ import { CheckoutDialog } from "../components/CheckoutDialog";
 import { RoomGrid } from "../components/RoomGrid";
 import { SessionModeDialog } from "../components/SessionModeDialog";
 import { useCheckout } from "../hooks/useCheckout";
-import { startSession } from "../services/sessions";
+import { cancelSession, startSession } from "../services/sessions";
 import { updateRoomStatus } from "../services/rooms";
 
 export function Rooms() {
@@ -29,6 +29,10 @@ export function Rooms() {
     try { await startSession({ roomId, durationMinutes, reservationId }); setStartRequest(null); await cafe.refresh(); } catch (error) { window.alert(error.message || "Could not start the session."); }
   }
   async function changeStatus(roomId, status) { try { await updateRoomStatus(roomId, status); await cafe.refresh(); } catch (error) { window.alert(error.message || "Could not update the room."); } }
+  async function cancelActiveSession(sessionId) {
+    if (!window.confirm("Cancel this session without charging room time?")) return;
+    try { await cancelSession(sessionId); await cafe.refresh(); } catch (error) { window.alert(error.message || "Could not cancel the session."); }
+  }
 
   return (
     <div className="page-stack">
@@ -39,6 +43,7 @@ export function Rooms() {
         onModeChange={setMode}
         onStart={requestStart}
         onEnd={checkout.openCheckout}
+        onCancel={cancelActiveSession}
         onReserve={(roomId) => navigate(`/reservations?room=${roomId}`)}
         onStatusChange={changeStatus}
       />

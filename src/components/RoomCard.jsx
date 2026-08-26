@@ -1,4 +1,4 @@
-import { CalendarPlus, CircleStop, Play, BellRing } from "lucide-react";
+import { CalendarPlus, CircleStop, Play, BellRing, XCircle } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { durationFrom, time } from "../utils";
 
@@ -8,7 +8,7 @@ function getRoomModeRate(room, roomMode = "SINGLE") {
   return baseRate + surcharge;
 }
 
-export function RoomCard({ room, roomMode = "SINGLE", activeSessions, reservations, overtimeSessionIds, onStart, onEnd, onReserve, onStatusChange, onModeChange }) {
+export function RoomCard({ room, roomMode = "SINGLE", activeSessions, reservations, overtimeSessionIds, onStart, onEnd, onCancel, onReserve, onStatusChange, onModeChange }) {
   const now = Date.now();
   const session = activeSessions.find((item) => item.room_id === room.id);
   const isOvertime = Boolean(session && overtimeSessionIds?.has(session.id));
@@ -47,9 +47,14 @@ export function RoomCard({ room, roomMode = "SINGLE", activeSessions, reservatio
       </div>
       <div className="room-actions">
         {session ? (
-          <button className="button danger-button" type="button" onClick={() => onEnd(session.id)}>
-            <CircleStop size={16} /> End session
-          </button>
+          <>
+            <button className="button danger-button" type="button" onClick={() => onEnd(session.id)}>
+              <CircleStop size={16} /> End session
+            </button>
+            <button className="button secondary-button" type="button" onClick={() => onCancel(session.id)}>
+              <XCircle size={16} /> Cancel session
+            </button>
+          </>
         ) : (
           <button className="button primary-button" type="button" disabled={!canStart} onClick={() => onStart(room.id, activeReservation?.id, roomMode)}>
             <Play size={16} fill="currentColor" /> {activeReservation ? "Check in" : "Start session"}
