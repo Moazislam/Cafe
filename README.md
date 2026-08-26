@@ -10,6 +10,16 @@ Single-cafe operations dashboard built with React, Vite, and Supabase.
 4. In Supabase Authentication, create an admin or staff email/password user. The migration creates a `STAFF` profile automatically and uses the first part of the email as the default username.
 5. Start the app with `npm run dev`.
 
+## User management
+
+Deploy the account management function after applying the migrations:
+
+```text
+supabase functions deploy manage-users
+```
+
+Only administrators can open Authentication, create accounts, or reset another user's password. Every signed-in user can click their username in the top bar to change their own password.
+
 ## Admin email alerts
 
 Migration `011_admin_alert_events.sql` queues an alert when an item crosses into low stock or a room changes to `MAINTENANCE`. Deploy the worker after applying the migration:
