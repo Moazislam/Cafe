@@ -25,8 +25,6 @@ export async function createVipPurchase({ customerName, items, amount, purchaseI
     purchaseItems.map((item) => ({ purchase_id: data.id, item_name: item.name, quantity: item.quantity, unit_price: Number(item.price) })),
   );
   if (itemsError) throw itemsError;
-  const { error: transactionError } = await supabase.rpc("record_vip_transaction", { p_purchase_id: data.id });
-  if (transactionError) throw transactionError;
   return data;
 }
 
