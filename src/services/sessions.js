@@ -32,3 +32,13 @@ export async function endSession(sessionId) {
   if (error) throw error;
   return data;
 }
+
+export async function cancelSession(sessionId) {
+  const supabase = getSupabase();
+  const { data, error } = await supabase.rpc("cancel_session", {
+    p_session_id: sessionId,
+  });
+
+  if (error) throw error;
+  return data;
+}

@@ -63,34 +63,29 @@ export function VIP() {
     const item = cafe.inventory.find((entry) => entry.id === selectedItemId);
     if (!item) return;
     const quantity = Math.min(item.quantity, Math.max(1, Number(selectedQuantity) || 1));
-    setMessage("");
-    try {
-      await adjustVipInventory(item.id, -quantity);
-      setCart((current) => {
-        const existing = current.find((entry) => entry.id === item.id);
-        if (existing) return current.map((entry) => entry.id === item.id ? { ...entry, quantity: entry.quantity + quantity } : entry);
-        return [...current, { ...item, quantity }];
-      });
-      await cafe.refresh();
-      setSelectedItemId(""); setSelectedQuantity(1);
-    } catch (error) { setMessage(error.message || "Could not reserve this item."); }
+    setCart((current) => {
+      const existing = current.find((entry) => entry.id === item.id);
+      if (existing) return current.map((entry) => entry.id === item.id ? { ...entry, quantity: existing.quantity + quantity } : entry);
+      return [...current, { ...item, quantity }];
+    });
+    setSelectedItemId(""); setSelectedQuantity(1);
   }
   async function undoItem(item) {
-    setMessage("");
-    try {
-      await adjustVipInventory(item.id, item.quantity);
-      setCart((current) => current.filter((entry) => entry.id !== item.id));
-      await cafe.refresh();
-    } catch (error) { setMessage(error.message || "Could not restore this item."); }
+    setCart((current) => current.filter((entry) => entry.id !== item.id));
   }
   async function submit(event) {
     event.preventDefault(); setMessage("");
     if (!cart.length) { setMessage("Select at least one stock item."); return; }
+    const reservedItems = [];
     try {
+      for (const item of cart) {
+        await adjustVipInventory(item.id, -item.quantity);
+        reservedItems.push(item);
+      }
       await createVipPurchase({ customerName: purchase.customerName, items: cart.map((item) => `${item.quantity}x ${item.name}`).join(", "), amount: total, purchaseItems: cart });
       setPurchase(blankPurchase); setCart([]); setMessage("VIP purchase added."); await load();
     } catch (error) {
-      await Promise.all(cart.map((item) => adjustVipInventory(item.id, item.quantity).catch(() => null)));
+      await Promise.all(reservedItems.map((item) => adjustVipInventory(item.id, item.quantity).catch(() => null)));
       await cafe.refresh();
       setMessage(error.message || "Could not add VIP purchase.");
     }
