@@ -3,6 +3,7 @@ import { Navigate, Outlet, Route, Routes, useLocation, useOutletContext } from "
 import { BellRing } from "lucide-react";
 import { Navbar } from "./components/Navbar";
 import { Dashboard } from "./pages/Dashboard";
+import { Authentication } from "./pages/Authentication";
 import { Inventory } from "./pages/Inventory";
 import { Login } from "./pages/Login";
 import { Orders } from "./pages/Orders";
@@ -131,6 +132,7 @@ function AppRoutes() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/rooms" element={<Rooms />} />
         <Route path="/reservations" element={<Reservations />} />
+        <Route path="/authentication" element={<AdminOnly><Authentication /></AdminOnly>} />
         <Route path="/inventory" element={<AdminOnly><Inventory /></AdminOnly>} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/vip" element={<StaffOrAdmin><VIP /></StaffOrAdmin>} />

@@ -1,0 +1,2 @@
+-- User account creation and admin password resets are handled by the manage-users Edge Function.
+-- The function uses SUPABASE_SERVICE_ROLE_KEY server-side and verifies the caller's ADMIN profile role.
