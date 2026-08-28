@@ -1,5 +1,7 @@
-import { CalendarRange, Coins, Receipt, Timer } from "lucide-react";
+import { CalendarRange, Coins, Receipt, Timer, Undo2 } from "lucide-react";
+import { useState } from "react";
 import { useOutletContext } from "react-router-dom";
+import { refundOrder } from "../services/revenue";
 import { businessDayKey, currency, dateTime, dayLabel, monthLabel } from "../utils";
 
 const KIND_LABELS = { SESSION: "Room time", ORDER: "Counter order" };
@@ -15,9 +17,31 @@ function roomTimeLabel(row) {
   return `${durationLabel(row.billed_session_minutes)} (${durationLabel(row.actual_session_minutes)} actual)`;
 }
 
+function modeLabel(entry) {
+  const mode = entry.kind === "SESSION" ? entry.sessions?.room_mode : entry.orders?.sessions?.room_mode;
+  return mode === "MULTIPLAYER" ? "M" : mode === "SINGLE" ? "S" : "—";
+}
+
 export function Reports() {
   const cafe = useOutletContext();
   const isAdmin = String(cafe.role || "").trim().toUpperCase() === "ADMIN";
+  const [refundingId, setRefundingId] = useState("");
+  const [refundError, setRefundError] = useState("");
+
+  async function handleRefund(entry) {
+    if (!window.confirm("Return this counter order and restore its inventory?")) return;
+
+    setRefundingId(entry.id);
+    setRefundError("");
+    try {
+      await refundOrder(entry.id);
+      await cafe.refresh();
+    } catch (error) {
+      setRefundError(error.message || "Could not undo this order.");
+    } finally {
+      setRefundingId("");
+    }
+  }
 
   return (
     <div className="page-stack">
@@ -117,20 +141,23 @@ export function Reports() {
             <p>{cafe.transactions.length} most recent charges.</p>
           </div>
         </div>
+        {refundError ? <div className="form-error">{refundError}</div> : null}
         <div className="table-wrap">
           <table>
-            <thead><tr><th>When</th><th>Type</th><th>Room</th>{isAdmin ? <th>User</th> : null}<th>Amount</th></tr></thead>
+            <thead><tr><th>When</th><th>Type</th><th>Room</th><th>Mode</th>{isAdmin ? <th>User</th> : null}<th>Amount</th><th aria-label="Actions" /></tr></thead>
             <tbody>
               {cafe.transactions.length ? cafe.transactions.map((entry) => (
                 <tr key={entry.id}>
                   <td>{dateTime(entry.created_at)}</td>
                   <td>{KIND_LABELS[entry.kind] || entry.kind}</td>
                   <td>{entry.rooms?.name || "—"}</td>
+                  <td>{modeLabel(entry)}</td>
                   {isAdmin ? <td>{entry.kind === "SESSION" ? entry.sessions?.profiles?.username : entry.profiles?.username || "Unknown"}</td> : null}
                   <td><strong>{currency(entry.amount)}</strong></td>
+                  <td>{entry.kind === "ORDER" && !entry.refund_of && !entry.refunded_at ? <button className="icon-button bordered" type="button" title="Undo counter order" aria-label="Undo counter order" disabled={refundingId === entry.id} onClick={() => handleRefund(entry)}><Undo2 size={16} /></button> : null}</td>
                 </tr>
               )) : (
-                <tr><td colSpan={isAdmin ? 5 : 4}><div className="empty-state">No transactions logged yet.</div></td></tr>
+                <tr><td colSpan={isAdmin ? 7 : 6}><div className="empty-state">No transactions logged yet.</div></td></tr>
               )}
             </tbody>
           </table>
