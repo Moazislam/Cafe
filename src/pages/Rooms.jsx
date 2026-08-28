@@ -26,7 +26,7 @@ export function Rooms() {
     const { roomId, reservationId, roomMode, sessionMode } = startRequest;
     setMode(roomId, roomMode);
     const durationMinutes = sessionMode === "1_HOUR" ? 60 : sessionMode === "2_HOURS" ? 120 : null;
-    try { await startSession({ roomId, durationMinutes, reservationId }); setStartRequest(null); await cafe.refresh(); } catch (error) { window.alert(error.message || "Could not start the session."); }
+    try { await startSession({ roomId, durationMinutes, reservationId, roomMode }); setStartRequest(null); await cafe.refresh(); } catch (error) { window.alert(error.message || "Could not start the session."); }
   }
   async function changeStatus(roomId, status) { try { await updateRoomStatus(roomId, status); await cafe.refresh(); } catch (error) { window.alert(error.message || "Could not update the room."); } }
   async function cancelActiveSession(sessionId) {
@@ -51,7 +51,7 @@ export function Rooms() {
       {checkout.checkoutSession ? (
         <CheckoutDialog
           room={checkout.checkoutRoom}
-          roomMode={roomModes[checkout.checkoutSession.room_id] ?? "SINGLE"}
+          roomMode={checkout.checkoutSession.room_mode}
           session={checkout.checkoutSession}
           orders={checkout.checkoutOrders}
           confirming={checkout.closing}

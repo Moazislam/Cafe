@@ -11,12 +11,13 @@ export async function fetchSessions() {
   return data ?? [];
 }
 
-export async function startSession({ roomId, durationMinutes, reservationId = null }) {
+export async function startSession({ roomId, durationMinutes, reservationId = null, roomMode = "SINGLE" }) {
   const supabase = getSupabase();
   const { data, error } = await supabase.rpc("start_session", {
     p_room_id: roomId,
     p_duration_minutes: durationMinutes == null ? null : Number(durationMinutes),
     p_reservation_id: reservationId,
+    p_room_mode: roomMode,
   });
 
   if (error) throw error;

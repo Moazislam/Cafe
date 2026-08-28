@@ -11,6 +11,7 @@ function getRoomModeRate(room, roomMode = "SINGLE") {
 export function RoomCard({ room, roomMode = "SINGLE", activeSessions, reservations, overtimeSessionIds, onStart, onEnd, onCancel, onReserve, onStatusChange, onModeChange }) {
   const now = Date.now();
   const session = activeSessions.find((item) => item.room_id === room.id);
+  const effectiveRoomMode = session?.room_mode || roomMode;
   const isOvertime = Boolean(session && overtimeSessionIds?.has(session.id));
   const roomReservations = reservations.filter((item) => item.room_id === room.id && item.status === "CONFIRMED");
   const activeReservation = roomReservations.find(
@@ -43,7 +44,7 @@ export function RoomCard({ room, roomMode = "SINGLE", activeSessions, reservatio
         ) : (
           <p><span>Rate</span><strong>{effectiveRate} EGP/hr</strong></p>
         )}
-        <p><span>Mode</span><strong>{roomMode === "MULTIPLAYER" ? "Multiplayer" : "Single"}</strong></p>
+        <p><span>Mode</span><strong>{effectiveRoomMode === "MULTIPLAYER" ? "Multiplayer" : "Single"}</strong></p>
       </div>
       <div className="room-actions">
         {session ? (
@@ -64,7 +65,7 @@ export function RoomCard({ room, roomMode = "SINGLE", activeSessions, reservatio
           <CalendarPlus size={18} />
         </button>
         {onModeChange ? (
-          <select className="compact-select" aria-label={`Set ${room.name} play mode`} value={roomMode} onChange={(event) => onModeChange(room.id, event.target.value)}>
+          <select className="compact-select" aria-label={`Set ${room.name} play mode`} value={effectiveRoomMode} onChange={(event) => onModeChange(room.id, event.target.value)}>
             <option value="SINGLE">Single</option>
             <option value="MULTIPLAYER">Multiplayer</option>
           </select>
