@@ -22,7 +22,13 @@ export async function createVipPurchase({ customerName, items, amount, purchaseI
 
   if (error) throw error;
   const { error: itemsError } = await supabase.from("vip_purchase_items").insert(
-    purchaseItems.map((item) => ({ purchase_id: data.id, item_name: item.name, quantity: item.quantity, unit_price: Number(item.price) })),
+    purchaseItems.map((item) => ({
+      purchase_id: data.id,
+      inventory_item_id: item.id,
+      item_name: item.name,
+      quantity: item.quantity,
+      unit_price: Number(item.price),
+    })),
   );
   if (itemsError) throw itemsError;
   return data;
@@ -38,6 +44,20 @@ export async function setVipPurchaseItemPaid(id, paid) {
 export async function deleteVipCustomer(customerName) {
   const supabase = getSupabase();
   const { data, error } = await supabase.rpc("delete_vip_customer", { p_customer_name: customerName });
+  if (error) throw error;
+  return data;
+}
+
+export async function clearVipCustomerPaidHistory(customerName) {
+  const supabase = getSupabase();
+  const { data, error } = await supabase.rpc("clear_paid_vip_customer_history", { p_customer_name: customerName });
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteVipPurchaseItem(itemId) {
+  const supabase = getSupabase();
+  const { data, error } = await supabase.rpc("delete_vip_purchase_item", { p_item_id: itemId });
   if (error) throw error;
   return data;
 }

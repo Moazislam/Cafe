@@ -4,7 +4,7 @@ import { CheckoutDialog } from "../components/CheckoutDialog";
 import { RoomGrid } from "../components/RoomGrid";
 import { SessionModeDialog } from "../components/SessionModeDialog";
 import { useCheckout } from "../hooks/useCheckout";
-import { cancelSession, startSession } from "../services/sessions";
+import { cancelSession, startSession, updateSessionRoomMode } from "../services/sessions";
 import { updateRoomStatus } from "../services/rooms";
 
 export function Rooms() {
@@ -14,7 +14,17 @@ export function Rooms() {
   const [roomModes, setRoomModes] = useState({});
   const [startRequest, setStartRequest] = useState(null);
 
-  function setMode(roomId, mode) {
+  async function setMode(roomId, mode, sessionId = null) {
+    if (sessionId) {
+      try {
+        await updateSessionRoomMode({ sessionId, roomMode: mode });
+        await cafe.refresh();
+      } catch (error) {
+        window.alert(error.message || "Could not update the session mode.");
+      }
+      return;
+    }
+
     setRoomModes((current) => ({ ...current, [roomId]: mode || "SINGLE" }));
   }
 

@@ -24,6 +24,17 @@ export async function startSession({ roomId, durationMinutes, reservationId = nu
   return data;
 }
 
+export async function updateSessionRoomMode({ sessionId, roomMode = "SINGLE" }) {
+  const supabase = getSupabase();
+  const { data, error } = await supabase.rpc("update_session_room_mode", {
+    p_session_id: sessionId,
+    p_room_mode: roomMode,
+  });
+
+  if (error) throw error;
+  return data;
+}
+
 export async function endSession(sessionId) {
   const supabase = getSupabase();
   const { data, error } = await supabase.rpc("end_session", {

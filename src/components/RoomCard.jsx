@@ -65,7 +65,7 @@ export function RoomCard({ room, roomMode = "SINGLE", activeSessions, reservatio
           <CalendarPlus size={18} />
         </button>
         {onModeChange ? (
-          <select className="compact-select" aria-label={`Set ${room.name} play mode`} value={effectiveRoomMode} onChange={(event) => onModeChange(room.id, event.target.value)}>
+          <select className="compact-select" aria-label={`Set ${room.name} play mode`} value={effectiveRoomMode} onChange={(event) => onModeChange(room.id, event.target.value, session?.id)}>
             <option value="SINGLE">Single</option>
             <option value="MULTIPLAYER">Multiplayer</option>
           </select>
