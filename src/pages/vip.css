@@ -1,66 +1,74 @@
+.vip-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(260px, 0.7fr);
+  gap: 18px;
+  align-items: start;
+}
+
 .vip-customer-list {
   display: grid;
   gap: 10px;
 }
 
 .vip-customer-row {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 66px;
+  padding: 15px 16px;
+  border: 1px solid rgba(148, 168, 160, 0.35);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(18, 29, 24, 0.06);
+  color: #1d2630;
+  text-align: left;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.vip-customer-row:hover {
+  transform: translateY(-1px);
+  border-color: rgba(22, 123, 102, 0.35);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.vip-customer-row.active {
+  border-color: rgba(22, 123, 102, 0.55);
+  background: linear-gradient(135deg, rgba(22, 123, 102, 0.12), rgba(255, 255, 255, 0.52));
+  box-shadow: 0 16px 30px rgba(22, 123, 102, 0.12);
+}
+
+.vip-customer-row div {
+  display: grid;
+  gap: 4px;
+}
+
+.vip-customer-row span {
+  color: #1c2d29;
+  font-weight: 700;
+}
+
+.vip-customer-row small {
+  color: #65756b;
+  font-size: 12px;
+}
+
+.vip-customer-row strong {
+  color: #0f6d5c;
+  font-family: "DM Mono", monospace;
+  font-size: 14px;
 }
 
 .vip-customer-toggle {
   flex: 1;
-
-  .vip-delete-button {
-    width: 36px;
-    height: 36px;
-    flex: 0 0 36px;
-    display: grid;
-    place-items: center;
-    border: 1px solid #dce3df;
-    border-radius: 4px;
-    background: transparent;
-    color: #a15f63;
-    cursor: pointer;
-  }
-
-  .vip-delete-button:hover {
-    border-color: #c98b8f;
-    background: #fff5f5;
-    color: #8c3f45;
-  }
-
-  .vip-delete-button:disabled {
-    cursor: wait;
-    opacity: 0.5;
-  }
-  min-height: 56px;
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border: 1px solid #dce3df;
-  border-radius: 5px;
-  background: transparent;
-  color: #1d2630;
-  text-align: left;
-}
-
-.vip-customer-toggle:hover {
-  background: #f5f8f6;
-  border-color: #9eb2a8;
-}
-
-.vip-customer-toggle span {
-  margin-left: auto;
-  color: #718078;
-  font-size: 13px;
 }
 
 .vip-customer-items {
   display: grid;
-  gap: 10px;
+  gap: 12px;
   margin-top: 12px;
 }
 
@@ -71,9 +79,10 @@
   justify-content: space-between;
   gap: 8px;
   padding: 0 5px;
-  border: 1px solid #d5ddd8;
-  border-radius: 4px;
-  background: #fff;
+  border: 1px solid rgba(151, 167, 160, 0.5);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .quantity-bar output {
@@ -89,11 +98,12 @@
   align-items: center;
   gap: 14px;
   padding: 12px 14px;
-  border-bottom: 1px solid #e5ebe7;
-}
-
-.vip-item-row:last-child {
-  border-bottom: 0;
+  border: 1px solid rgba(148, 168, 160, 0.35);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.48);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 12px 26px rgba(18, 29, 24, 0.04);
 }
 
 .vip-item-row div {
@@ -101,12 +111,38 @@
   gap: 4px;
 }
 
+.vip-item-row strong {
+  color: #1e2d2a;
+}
+
 .vip-item-row span {
   color: #718078;
   font-size: 13px;
 }
 
+.vip-item-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.vip-item-delete {
+  color: #a15f63;
+  border-color: rgba(161, 95, 99, 0.3);
+}
+
+.vip-item-delete:hover {
+  background: rgba(161, 95, 99, 0.08);
+  border-color: rgba(161, 95, 99, 0.45);
+  color: #8d3a42;
+}
+
 @media (max-width: 600px) {
+  .vip-layout {
+    grid-template-columns: 1fr;
+  }
+
   .vip-item-row {
     grid-template-columns: 1fr auto;
   }
