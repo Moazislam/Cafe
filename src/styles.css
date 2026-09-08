@@ -26,6 +26,9 @@ button:disabled { cursor: not-allowed; opacity: .52; }
 .session-mode-option { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 10px; padding: 13px; border: 1px solid #dce3df; border-radius: 6px; cursor: pointer; }
 .session-mode-option.selected { border-color: #167b66; background: rgba(22, 123, 102, 0.08); }
 .session-mode-option input { accent-color: #167b66; }
+.revenue-debug-row td { background: #f7faf8; border-top: 0; }
+.revenue-debug { display: grid; gap: 5px; padding: 10px 12px; color: #52635a; font-family: "DM Mono", monospace; font-size: 12px; }
+.revenue-debug strong { color: #1d2630; font-family: Manrope, Arial, sans-serif; font-size: 13px; }
 .session-mode-option strong, .session-mode-option small { display: block; }
 .session-mode-option small { margin-top: 3px; color: #718078; font-size: 12px; }
 .session-mode-icon { display: inline-grid; place-items: center; color: #167b66; }

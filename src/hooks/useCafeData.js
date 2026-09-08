@@ -5,7 +5,7 @@ import { fetchReservations } from "../services/reservations";
 import { fetchRooms } from "../services/rooms";
 import { fetchDailyRevenue, fetchMonthlyRevenue, fetchTransactions } from "../services/revenue";
 import { fetchSessions } from "../services/sessions";
-import { businessDayKey } from "../utils";
+import { businessDayKey, cairoMonthKey } from "../utils";
 import { useRealtime } from "./useRealtime";
 
 export function useCafeData() {
@@ -85,7 +85,7 @@ export function useCafeData() {
   }, [dailyRevenue]);
 
   const monthRevenue = useMemo(() => {
-    const monthKey = `${new Date().toISOString().slice(0, 7)}-01`;
+    const monthKey = cairoMonthKey();
     const row = monthlyRevenue.find((entry) => entry.month === monthKey);
     return Number(row?.total_revenue || 0);
   }, [monthlyRevenue]);

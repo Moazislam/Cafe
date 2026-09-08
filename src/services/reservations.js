@@ -1,7 +1,8 @@
 import { getSupabase } from "./supabase";
+import { cairoLocalToUtc } from "../utils";
 
 function toUtcISOString(value) {
-  return new Date(value).toISOString();
+  return cairoLocalToUtc(value);
 }
 
 export async function fetchReservations() {

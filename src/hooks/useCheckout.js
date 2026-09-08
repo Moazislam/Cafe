@@ -12,7 +12,9 @@ export function useCheckout(cafe) {
     ? cafe.rooms.find((room) => room.id === checkoutSession.room_id)
     : null;
   const checkoutOrders = checkoutSession
-    ? cafe.orders.filter((order) => order.session_id === checkoutSession.id)
+    ? cafe.orders.filter((order) => order.session_id === checkoutSession.id && !cafe.transactions.some(
+      (transaction) => transaction.kind === "ORDER" && transaction.order_id === order.id && transaction.refunded_at,
+    ))
     : [];
 
   function openCheckout(sessionId) {

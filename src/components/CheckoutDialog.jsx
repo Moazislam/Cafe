@@ -3,7 +3,7 @@ import { ceilToFive, currency, durationFrom } from "../utils";
 
 function getRoomModeRate(room, roomMode = "SINGLE") {
   const baseRate = Number(room?.hourly_rate || 0);
-  const surcharge = roomMode === "MULTIPLAYER" ? (room?.id === 2 ? 15 : 10) : 0;
+  const surcharge = roomMode === "MULTIPLAYER" ? 10 : 0;
   return baseRate + surcharge;
 }
 
