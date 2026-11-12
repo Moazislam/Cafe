@@ -3,9 +3,10 @@ import { StatusBadge } from "./StatusBadge";
 import { durationFrom, time } from "../utils";
 
 function getRoomModeRate(room, roomMode = "SINGLE") {
-  const baseRate = Number(room?.hourly_rate || 0);
-  const surcharge = roomMode === "MULTIPLAYER" ? 10 : 0;
-  return baseRate + surcharge;
+  if (roomMode === "MULTIPLAYER" && room?.multiplayer_hourly_rate != null) {
+    return Number(room.multiplayer_hourly_rate);
+  }
+  return Number(room?.hourly_rate || 0) + (roomMode === "MULTIPLAYER" ? 10 : 0);
 }
 
 export function RoomCard({ room, roomMode = "SINGLE", activeSessions, reservations, overtimeSessionIds, onStart, onEnd, onCancel, onReserve, onStatusChange, onModeChange }) {

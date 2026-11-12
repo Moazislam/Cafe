@@ -2,9 +2,10 @@ import { Receipt, ShoppingBag, Timer, X } from "lucide-react";
 import { ceilToFive, currency, durationFrom } from "../utils";
 
 function getRoomModeRate(room, roomMode = "SINGLE") {
-  const baseRate = Number(room?.hourly_rate || 0);
-  const surcharge = roomMode === "MULTIPLAYER" ? 10 : 0;
-  return baseRate + surcharge;
+  if (roomMode === "MULTIPLAYER" && room?.multiplayer_hourly_rate != null) {
+    return Number(room.multiplayer_hourly_rate);
+  }
+  return Number(room?.hourly_rate || 0) + (roomMode === "MULTIPLAYER" ? 10 : 0);
 }
 
 export function CheckoutDialog({ room, roomMode = "SINGLE", session, orders, onConfirm, onCancel, confirming }) {

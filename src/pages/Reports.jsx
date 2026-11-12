@@ -31,8 +31,9 @@ function roomRevenueDetails(entry) {
   const exactMinutes = exactSeconds / 60;
   const billedMinutes = Math.max(60, Math.round(exactMinutes / 15) * 15);
   const baseRate = Number(entry.rooms?.hourly_rate || 0);
-  const surcharge = entry.sessions.room_mode === "MULTIPLAYER" ? 10 : 0;
-  const effectiveRate = baseRate + surcharge;
+  const multiplayerRate = Number(entry.rooms?.multiplayer_hourly_rate ?? baseRate + 10);
+  const effectiveRate = entry.sessions.room_mode === "MULTIPLAYER" ? multiplayerRate : baseRate;
+  const surcharge = effectiveRate - baseRate;
   const exactCost = effectiveRate * (billedMinutes / 60);
   const finalCost = Math.ceil(exactCost / 5) * 5;
 
