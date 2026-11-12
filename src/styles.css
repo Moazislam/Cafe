@@ -42,8 +42,18 @@ button:disabled { cursor: not-allowed; opacity: .52; }
 .user-row > div:first-child { min-width: 0; display: grid; gap: 3px; }
 .user-row strong { color: #27332d; }
 .user-row span { color: #718078; font-size: 13px; }
+.pricing-surface { display: grid; gap: 18px; }
+.pricing-list { display: grid; gap: 0; }
+.pricing-row { display: grid; grid-template-columns: minmax(150px, 1fr) minmax(130px, 180px) minmax(130px, 180px) auto; gap: 14px; align-items: end; padding: 14px 0; border-bottom: 1px solid #e5ebe7; }
+.pricing-row:first-child { padding-top: 0; }
+.pricing-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.pricing-row label { display: grid; gap: 7px; color: #47564e; font-size: 12px; font-weight: 800; }
+.pricing-row input { width: 100%; height: 39px; border: 1px solid #cfd9d3; border-radius: 4px; padding: 0 11px; background: #fff; color: #26332d; outline-color: #167b66; font-size: 14px; }
+.pricing-room { display: grid; gap: 4px; }
+.pricing-room span { color: #718078; font-size: 13px; }
 .user-row-actions { display: flex; align-items: center; gap: 10px; }
 .role-label { padding: 4px 7px; border-radius: 999px; font-family: "DM Mono", monospace; font-size: 10px !important; font-weight: 500; }
 .role-admin { color: #8a5d00 !important; background: #fff4d6; }
 .role-staff { color: #167b66 !important; background: #e1f3ed; }
 @media (max-width: 760px) { .authentication-layout { grid-template-columns: 1fr; } .user-row { align-items: flex-start; } }
+@media (max-width: 760px) { .pricing-row { grid-template-columns: 1fr 1fr; } .pricing-room { grid-column: 1 / -1; } .pricing-row .button { width: 100%; } }

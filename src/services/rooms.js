@@ -23,3 +23,19 @@ export async function updateRoomStatus(roomId, status) {
   if (error) throw error;
   return data;
 }
+
+export async function updateRoomPricing({ roomId, hourlyRate, multiplayerHourlyRate }) {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from("rooms")
+    .update({
+      hourly_rate: Number(hourlyRate),
+      multiplayer_hourly_rate: Number(multiplayerHourlyRate),
+    })
+    .eq("id", roomId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
